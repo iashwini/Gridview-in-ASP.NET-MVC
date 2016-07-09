@@ -1,0 +1,82 @@
+﻿@model MVCGridView.Models.ProductModel
+@using System.Web.Helpers;
+
+@{
+    ViewBag.Title = "Gridveiw using simple foreach";
+}
+
+<link href="https://code.jquery.com/ui/1.12.0-rc.2/themes/smoothness/jquery-ui.css" rel="stylesheet" />
+
+<h1>Simple grid view design using foreach loop and html table</h1>
+<br />
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Product ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Department</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in @Model.Products)
+        {
+            <tr>
+                <th scope="row">@item.Id</th>
+                <td>@item.Name</td>
+                <td>@item.Price</td>
+                <td>@item.Department</td>
+                <td><a data-value="@item.Id" href="javascript:void(0)" class="btnEdit">Edit</a></td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5">
+                <ul class="pagination pull-right">
+                    @for (int pagenum = 1; pagenum <= @Model.PagerCount; pagenum++)
+                    {
+                        <li class="paginate_button"><a href="@Url.Action("index", "home", new { pageNumber = @pagenum })" aria-controls="example" data-dt-idx="2" tabindex="0">@pagenum</a></li>
+                    }
+                </ul>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+
+<div class="clearfix"></div>
+
+<div id="dialog" title="edit view" style="overflow: hidden;"></div>
+
+@section Scripts{
+    <script src="https://code.jquery.com/ui/1.12.0-rc.2/jquery-ui.min.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var id = 0;
+            $(document).on('click', '.btnEdit', function () {
+                id = $(this).attr("data-value");
+                $('#dialog').dialog('open');
+            });
+
+            $('#dialog').dialog({
+                autoOpen: false,
+                width: 400,
+                resizable: false,
+                title: 'Edit Product details',
+                modal: true,
+                open: function (event, ui) {
+                    // Load partial view _GridEditPartial
+                    $(this).load("@Url.Action("GetProductById")", { id: id });
+                },
+                buttons: {
+                    "Close": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+    </script>
+}

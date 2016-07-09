@@ -1,0 +1,59 @@
+﻿@model MVCGridView.Models.ProductModel
+@*@using System.Web.Helpers;*@
+
+@{
+    ViewBag.Title = "Gridveiw using simple foreach";
+    WebGrid grid = new WebGrid(null, rowsPerPage: @Model.PageSize);
+    grid.Bind(Model.Products, autoSortAndPage: true, rowCount: @Model.PageSize);
+}
+
+<link href="https://code.jquery.com/ui/1.12.0-rc.2/themes/smoothness/jquery-ui.css" rel="stylesheet" />
+<h1>Gridview using WebGrid</h1>
+<br />
+@grid.GetHtml(tableStyle: "table table-bordered",
+ mode: WebGridPagerModes.All,
+ firstText: "<< First",
+ previousText: "< Prev",
+ nextText: "Next >",
+ lastText: "Last >>",
+    columns: grid.Columns(
+    grid.Column("Id", " Id"),
+    grid.Column("Name", "Name"),
+    grid.Column("Price", "Price"),
+    grid.Column("Department", "Department"),
+    grid.Column(header: "Action",
+                format: @<text><a data-value='@item.Id' href='javascript:void(0)' class='btnEdit'>Edit</a></text>)
+))
+
+<div id="dialog" title="edit view" style="overflow: hidden;"></div>
+
+@section Scripts{
+    <script src="https://code.jquery.com/ui/1.12.0-rc.2/jquery-ui.min.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var id = 0;
+            $(document).on('click', '.btnEdit', function () {
+                id = $(this).attr("data-value");
+                $('#dialog').dialog('open');
+            });
+
+            $('#dialog').dialog({
+                autoOpen: false,
+                width: 400,
+                resizable: false,
+                title: 'Edit Product details',
+                modal: true,
+                open: function (event, ui) {
+                    // Load partial view _GridEditPartial
+                    $(this).load("@Url.Action("GetProductById")", { id: id });
+                },
+                buttons: {
+                    "Close": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+    </script>
+}

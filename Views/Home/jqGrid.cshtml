@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "Gridveiw using jqGrid";
+}
+
+<link href="https://code.jquery.com/ui/1.12.0-rc.2/themes/smoothness/jquery-ui.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/jqgrid/4.6.0/css/ui.jqgrid.css" rel="stylesheet" />
+
+<h1>Gridveiw using jqGrid plugin.</h1>
+<br />
+<table id="jqGrid"></table>
+<div id="jqGridPager"></div>
+<br />
+
+<div id="dialog" title="edit view" style="overflow: hidden;"></div>
+
+@section scripts{
+    <script src="https://cdn.jsdelivr.net/jqgrid/4.6.0/i18n/grid.locale-en.js"></script>
+    <script src="https://cdn.jsdelivr.net/jqgrid/4.6.0/jquery.jqGrid.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0-rc.2/jquery-ui.min.js"></script>
+     <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var myGrid = $('#jqGrid');
+            myGrid.jqGrid({
+                url: '/Home/GetProducts/',
+                datatype: "json",
+                contentType: "application/json; charset-utf-8",
+                mtype: 'GET',
+                colNames: ['ProductID', 'Name', 'Price', 'Department', 'Action'],
+                colModel: [
+                    { name: 'Id', key: true, width: 75 },
+                    { name: 'Name', key: true, width: 200 },
+                    { name: 'Price', key: true, width: 75 },
+                    { name: 'Department', key: true, width: 200 },
+                    { name: 'Edit', key: true, width: 100, editable: true, formatter: editButton }
+                ],
+                rowNum: 4,
+                pager: '#jqGridPager',
+                gridview: true,
+                rownumbers: true,
+                pagerpos: 'center'
+            });
+
+            $('#dialog').dialog({
+                autoOpen: false,
+                width: 400,
+                resizable: false,
+                title: 'Edit Product details',
+                modal: true,
+                open: function (event, ui) {
+                    // Load partial view _GridEditPartial
+                    $(this).load("@Url.Action("GetProductById")", { id: id });
+                },
+                buttons: {
+                    "Close": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+
+            function editButton(cellvalue, options, rowObject) {
+                return "<a data-value='" + rowObject.Id + "' href='javascript:void(0)' class='btnEdit'>Edit</a>";
+            }
+
+            var id = 0;
+            $(document).on('click', '.btnEdit', function () {
+                id = $(this).attr("data-value");
+                $('#dialog').dialog('open');
+            });
+
+
+
+    </script>
+}
